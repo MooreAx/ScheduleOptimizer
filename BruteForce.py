@@ -49,7 +49,6 @@ def has_consecutive_workdays_violating_limit(selected_pairings, max_consecutive_
             consecutive_workdays = (pairing["End"] - pairing["Start"]).days + 1
             continue
         
-        
         gap = (pairing["Start"] - prev_end_date).days
         if gap <= 1:
             consecutive_workdays += (pairing["End"] - pairing["Start"]).days + 1
@@ -65,7 +64,7 @@ def has_consecutive_workdays_violating_limit(selected_pairings, max_consecutive_
 
 
 # Function to brute force all combinations and keep the best 5
-def brute_force_optimize(pairings, min_credits, max_credits, top_n=12):
+def brute_force_optimize(pairings, min_credits, max_credits, top_n=100):
     best_combinations = []  # List to store top n combinations
     
     count_combinations = 0
@@ -106,52 +105,3 @@ max_credits = 84
 
 # Call the brute_force_optimize function
 best_combinations = brute_force_optimize(Pairings, min_credits, max_credits)
-
-# Function to generate the day matrix
-def generate_day_matrix(best_combinations, month_start_date):
-    days_in_month = (month_start_date.replace(month=month_start_date.month+1) - timedelta(days=1)).day
-    days = [month_start_date + timedelta(days=i) for i in range(days_in_month)]
-
-    # Create an empty matrix for the days and pairings
-    matrix = [["" for _ in range(len(best_combinations))] for _ in range(days_in_month)]
-
-    for col_idx, (combination, _, _) in enumerate(best_combinations):
-        for p in combination:
-            start_day_idx = (p["Start"] - month_start_date).days
-            end_day_idx = (p["End"] - month_start_date).days
-            for day_idx in range(start_day_idx, end_day_idx + 1):
-                matrix[day_idx][col_idx] = f"{p['Name']}"
-
-    # Print the header
-    print(f"{'Day':<10}", end=" | ")
-    for col_idx in range(len(best_combinations)):
-        print(f"Pairing {col_idx + 1:<12}", end=" | ")
-    print()
-
-
-    # Print the header row (Max consecutive days off)
-    print(f"{' ' * 10}", end=" | ")  # Align with "Day" column
-    for _, max_days_off, _ in best_combinations:
-        print(f"Max CDO: {max_days_off:<11}", end=" | ")
-    print()
-
-
-    # Print the day matrix
-    for day_idx, day in enumerate(days):
-        print(f"{day.strftime('%a %d %b'):<10}", end=" | ")
-        for col in matrix[day_idx]:
-            print(f"{col:<20}", end=" | ")
-        print()
-
-# Example usage
-min_credits = 80
-max_credits = 84
-
-# Assuming month_start_date is the first day of the month you want to check
-month_start_date = date(2025, 3, 1)
-
-# Output the day matrix
-
-print("\n\n")
-
-generate_day_matrix(best_combinations, month_start_date)
