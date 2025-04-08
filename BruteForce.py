@@ -8,6 +8,7 @@ Next steps as follows:
     -- include training events / ground school / sim
     -- no pairings on selected days
 4) include previous month's schedule, as working days constraints are rolling
+5) add option to minimize "consecutive days on", i.e. opposite of "max days off
 
 '''
 
@@ -34,6 +35,12 @@ def max_consecutive_days_off(selected_pairings):
         if days_off > max_days_off:
             max_days_off = days_off
     return max_days_off
+
+def min_days_on(selected_pairings):
+    selected_pairings.sort(key=lambda p: p["Start"])
+    start_first_pairing = selected_pairings[0]["Start"]
+    end_last_pairing = selected_pairings[len(selected_pairings)-1]["End"]
+    return (end_last_pairing - start_first_pairing).days
 
 # Function to check if there are more than 6 consecutive workdays in a combination
 def has_consecutive_workdays_violating_limit(selected_pairings, max_consecutive_workdays=6):
@@ -63,13 +70,14 @@ def has_consecutive_workdays_violating_limit(selected_pairings, max_consecutive_
 
 
 # Function to brute force all combinations and keep the best 5
-def brute_force_optimize(pairings, min_credits, max_credits, top_n=100):
+def brute_force_optimize(pairings, min_credits, max_credits, top_n=100, method = "minimize work"):
     best_combinations = []  # List to store top n combinations
     
     count_combinations = 0
     count_acceptable_combinations = 0
 
-    max_consec = 0
+    max_off = 0
+    min_on = 31
 
     for qty in range(4, 12):
         for combination in itertools.combinations(pairings, qty):
@@ -81,26 +89,43 @@ def brute_force_optimize(pairings, min_credits, max_credits, top_n=100):
                 
                 # Check if total credits meet the required range
                 if total_credits >= min_credits and total_credits <= max_credits:
-                    if has_consecutive_workdays_violating_limit(list(combination), 5):
+                    if has_consecutive_workdays_violating_limit(list(combination), 4):
                         continue  # Skip this combination if it violates the consecutive workdays rule
                     
                     count_acceptable_combinations += 1
                     
-                    # Calculate days off
-                    consecutive_days_off = max_consecutive_days_off(list(combination))
 
-                    if consecutive_days_off > max_consec:
-                        max_consec = consecutive_days_off
-                        print(max_consec)
+                    if method == "maximize off":
+                        # Calculate days off
+                        consecutive_days_off = max_consecutive_days_off(list(combination))
+
+                        if consecutive_days_off > max_off:
+                            max_off = consecutive_days_off
+                            print(f"max consecutive days off = {max_off}")
+                        
+                        # Add to best combinations if it has more days off or if the list has fewer than top_n combinations
+                        if len(best_combinations) < top_n:
+                            best_combinations.append((combination, consecutive_days_off, total_credits))
+                            best_combinations.sort(key=lambda x: x[1], reverse=True)  # Sort by max days off
+                        elif consecutive_days_off > best_combinations[-1][1]:
+                            best_combinations.append((combination, consecutive_days_off, total_credits))
+                            best_combinations.sort(key=lambda x: x[1], reverse=True)  # Sort by max days off
                     
+                    elif method == "minimize work":
+                         # Calculate days worked
+                        consecutive_days_on = min_days_on(list(combination))
 
-                    # Add to best combinations if it has more days off or if the list has fewer than top_n combinations
-                    if len(best_combinations) < top_n:
-                        best_combinations.append((combination, consecutive_days_off, total_credits))
-                        best_combinations.sort(key=lambda x: x[1], reverse=True)  # Sort by max days off
-                    elif consecutive_days_off > best_combinations[-1][1]:
-                        best_combinations[-1] = (combination, consecutive_days_off, total_credits)
-                        best_combinations.sort(key=lambda x: x[1], reverse=True)  # Sort by max days off
+                        if consecutive_days_on < min_on:
+                            min_on = consecutive_days_on
+                            print(f"min consecutive days on = {min_on}")
+
+                        # Add to best combinations if it has fewer days on, or if the list has fewer than top_n combinations
+                        if len(best_combinations) < top_n:
+                            best_combinations.append((combination, consecutive_days_on, total_credits))
+                            best_combinations.sort(key=lambda x: x[1], reverse=False)  # Sort by min days on
+                        elif consecutive_days_on < best_combinations[-1][1]:
+                            best_combinations.append((combination, consecutive_days_on, total_credits))
+                            best_combinations.sort(key=lambda x: x[1], reverse=False)  # Sort by min days off                       
 
             #print(count_combinations)
 
@@ -113,5 +138,5 @@ min_credits = 80
 max_credits = 84
 
 # Call the brute_force_optimize function
-
-best_combinations = brute_force_optimize(Pairings, min_credits, max_credits)
+ 
+best_combinations = brute_force_optimize(Pairings, min_credits, max_credits, method = "minimize work")
