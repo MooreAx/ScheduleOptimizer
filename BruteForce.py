@@ -2,7 +2,7 @@
 
 Next steps as follows:
 1) automate preparation of input file (available pairings)
-2) export results to excel file
+2) export results to excel file --> done
 3) all for additional constraints
     -- include / exclude certain pairings
     -- include training events / ground school / sim
@@ -10,7 +10,6 @@ Next steps as follows:
 4) include previous month's schedule, as working days constraints are rolling
 
 '''
-
 
 import GetPairings
 from datetime import datetime, timedelta, date
@@ -70,7 +69,9 @@ def brute_force_optimize(pairings, min_credits, max_credits, top_n=100):
     count_combinations = 0
     count_acceptable_combinations = 0
 
-    for qty in range(1, len(pairings) + 1):
+    max_consec = 0
+
+    for qty in range(4, 12):
         for combination in itertools.combinations(pairings, qty):
             count_combinations += 1
 
@@ -80,13 +81,19 @@ def brute_force_optimize(pairings, min_credits, max_credits, top_n=100):
                 
                 # Check if total credits meet the required range
                 if total_credits >= min_credits and total_credits <= max_credits:
-                    if has_consecutive_workdays_violating_limit(list(combination), 6):
+                    if has_consecutive_workdays_violating_limit(list(combination), 5):
                         continue  # Skip this combination if it violates the consecutive workdays rule
                     
                     count_acceptable_combinations += 1
+                    
                     # Calculate days off
                     consecutive_days_off = max_consecutive_days_off(list(combination))
+
+                    if consecutive_days_off > max_consec:
+                        max_consec = consecutive_days_off
+                        print(max_consec)
                     
+
                     # Add to best combinations if it has more days off or if the list has fewer than top_n combinations
                     if len(best_combinations) < top_n:
                         best_combinations.append((combination, consecutive_days_off, total_credits))
@@ -94,6 +101,8 @@ def brute_force_optimize(pairings, min_credits, max_credits, top_n=100):
                     elif consecutive_days_off > best_combinations[-1][1]:
                         best_combinations[-1] = (combination, consecutive_days_off, total_credits)
                         best_combinations.sort(key=lambda x: x[1], reverse=True)  # Sort by max days off
+
+            #print(count_combinations)
 
     print(f"\n\n{count_combinations} combinations checked. {count_acceptable_combinations} combinations acceptable.")
     
@@ -104,4 +113,5 @@ min_credits = 80
 max_credits = 84
 
 # Call the brute_force_optimize function
+
 best_combinations = brute_force_optimize(Pairings, min_credits, max_credits)

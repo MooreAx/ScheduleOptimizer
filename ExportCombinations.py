@@ -1,3 +1,5 @@
+
+
 from BruteForce import best_combinations
 from datetime import datetime, timedelta, date
 import calendar
@@ -52,12 +54,9 @@ def generate_day_matrix(best_combinations, month_start_date):
             print(f"{col:<20}", end=" | ")
         print()
 
-# Example usage
-min_credits = 80
-max_credits = 84
 
 # Assuming month_start_date is the first day of the month you want to check
-month_start_date = date(2025, 3, 1)
+month_start_date = date(2025, 5, 1)
 
 # Output the day matrix
 
@@ -89,8 +88,8 @@ def create_schedule_dict(combination, start_date, end_date):
 def create_dict_list(combinations):
     schedule_dicts = []
 
-    start = datetime(2025,3,1)
-    end = datetime(2025,3,31)
+    start = datetime(2025,5,1)
+    end = datetime(2025,5,31)
 
     for (c, _, _) in combinations:
 
@@ -108,4 +107,3 @@ print(final_df)
 
 
 final_df.to_csv("output.csv")
-

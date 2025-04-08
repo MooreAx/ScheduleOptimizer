@@ -3,7 +3,7 @@ from datetime import timedelta
 import pulp
 
 # PARAMETERS
-max_consecutive_days = 6
+max_consecutive_days = 5
 
 # Get Pairings from the external source
 Pairings = GetPairings.Pairings
