@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-file_path = r"C:\Users\moore\OneDrive\Work\Calm Air\Bids\2025-05\MAY TH FO 2025.xlsx"
+file_path = r"C:\Users\moore\OneDrive\Work\Calm Air\Bids\2025-06\JUNE TH FO 2025.xlsx"
 
 df = pd.read_excel(
 	file_path,
@@ -42,8 +42,22 @@ for index, row in df.iterrows():
 		if pd.isna(CountConsec):
 			CountConsec = "Yes"
 
-		#create pairings as a dictionary
-		Pairings.append({"ID": ID, "Name": Name, "Start": Start, "End": End, "Credits": Credits, "ForceInclude": ForceInclude, "CountConsec": CountConsec})
-		print(f"ID = {ID}, Name = {Name}, Start = {Start}, End = {End}, Credits = {Credits}, ForceInclude: {ForceInclude}, CountConsec: {CountConsec}")
+
+
+		
+		#before appending as a new pairing, check that it is not effectively the same as another:
+
+		found = False
+		for p in Pairings:
+			if p["Start"] == Start and p["End"] == End and p["Credits"] == Credits:
+				
+				#effectively the same as another pairing
+				p["Name"] += " | " + Name
+				found = True
+				break
+
+		if not found:
+			Pairings.append({"ID": ID, "Name": Name, "Start": Start, "End": End, "Credits": Credits, "ForceInclude": ForceInclude, "CountConsec": CountConsec})
+			print(f"ID = {ID}, Name = {Name}, Start = {Start}, End = {End}, Credits = {Credits}, ForceInclude: {ForceInclude}, CountConsec: {CountConsec}")
 
 		OPEN = False

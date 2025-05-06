@@ -127,16 +127,19 @@ def brute_force_optimize(pairings, min_credits, max_credits, top_n=100, method =
                             best_combinations.append((combination, consecutive_days_on, total_credits))
                             best_combinations.sort(key=lambda x: x[1], reverse=False)  # Sort by min days off                       
 
-            #print(count_combinations)
+            print(count_combinations)
 
     print(f"\n\n{count_combinations} combinations checked. {count_acceptable_combinations} combinations acceptable.")
     
     return best_combinations
 
 # Example usage
-min_credits = 80
-max_credits = 84
+min_credits = 60
+max_credits = 67
 
 # Call the brute_force_optimize function
  
 best_combinations = brute_force_optimize(Pairings, min_credits, max_credits, method = "minimize work")
+
+
+print("hi this is a test")

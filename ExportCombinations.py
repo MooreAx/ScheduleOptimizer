@@ -56,7 +56,7 @@ def generate_day_matrix(best_combinations, month_start_date):
 
 
 # Assuming month_start_date is the first day of the month you want to check
-month_start_date = date(2025, 5, 1)
+month_start_date = date(2025, 6, 1)
 
 # Output the day matrix
 
@@ -88,8 +88,8 @@ def create_schedule_dict(combination, start_date, end_date):
 def create_dict_list(combinations):
     schedule_dicts = []
 
-    start = datetime(2025,5,1)
-    end = datetime(2025,5,31)
+    start = datetime(2025,6,1)
+    end = datetime(2025,6,30)
 
     for (c, _, _) in combinations:
 
